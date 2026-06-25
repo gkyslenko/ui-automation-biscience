@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   smoke-tests:
-    name: Smoke Tests (${{ github.event.inputs.environment || 'staging' }})
+    name: Smoke Tests (${{ github.event.inputs.environment || 'staging' }} / ${{ github.event.inputs.browser || 'chrome' }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -45,12 +45,31 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
       - name: Set up Chrome
+        if: env.BROWSER == 'chrome'
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
-      - name: Print Chrome version
-        run: google-chrome --version
+      - name: Set up Firefox
+        if: env.BROWSER == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+        with:
+          firefox-version: latest
+      - name: Set up Edge
+        if: env.BROWSER == 'edge'
+        uses: browser-actions/setup-edge@v1
+        with:
+          edge-version: stable
+
+      - name: Print browser version
+        run: |
+          case "$BROWSER" in
+            chrome)  google-chrome --version ;;
+            firefox) firefox --version ;;
+            edge)    microsoft-edge --version ;;
+          esac
+
       - name: Create passwords.properties
         run: |
           sed 's|\${base\.password}|${{ secrets.BASE_PASSWORD }}|g' \
@@ -76,7 +95,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report-${{ env.ENVIRONMENT }}
+          name: allure-report-${{ env.ENVIRONMENT }}-${{ env.BROWSER }}
           path: target/allure-single/index.html
           if-no-files-found: warn
           retention-days: 14
@@ -85,7 +104,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-${{ env.ENVIRONMENT }}
+          name: screenshots-${{ env.ENVIRONMENT }}-${{ env.BROWSER }}
           path: test-output/screenshots/
           if-no-files-found: ignore
           retention-days: 7
@@ -94,7 +113,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ env.ENVIRONMENT }}
+          name: logs-${{ env.ENVIRONMENT }}-${{ env.BROWSER }}
           path: test-output/logs/
           if-no-files-found: ignore
           retention-days: 7
@@ -103,7 +122,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports-${{ env.ENVIRONMENT }}
+          name: surefire-reports-${{ env.ENVIRONMENT }}-${{ env.BROWSER }}
           path: target/surefire-reports/
           if-no-files-found: ignore
           retention-days: 7

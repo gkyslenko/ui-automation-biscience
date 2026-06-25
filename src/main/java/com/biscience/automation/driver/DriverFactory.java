@@ -42,6 +42,7 @@ public final class DriverFactory {
         FirefoxOptions opts = new FirefoxOptions();
         opts.setCapability("webSocketUrl", true);
         if (headless) opts.addArguments("--headless");
+        opts.addArguments("--width=1920", "--height=1080");
         return new FirefoxDriver(opts);
     }
 
@@ -49,6 +50,8 @@ public final class DriverFactory {
         EdgeOptions opts = new EdgeOptions();
         opts.setCapability("webSocketUrl", true);
         if (headless) opts.addArguments("--headless=new");
+        opts.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
+        opts.addArguments("--window-size=1920,1080");
         return new EdgeDriver(opts);
     }
 }
