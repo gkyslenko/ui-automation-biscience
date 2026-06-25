@@ -22,15 +22,11 @@ public final class DriverFactory {
 
         log.info("Creating WebDriver  browser={} headless={}", browser, headless);
 
-        WebDriver driver = switch (browser) {
+        return switch (browser) {
             case "firefox" -> createFirefox(headless);
             case "edge"    -> createEdge(headless);
             default        -> createChrome(headless);
         };
-
-        driver.manage().window().maximize();
-
-        return driver;
     }
 
     private static WebDriver createChrome(boolean headless) {
