@@ -111,13 +111,24 @@ jobs:
       - name: Check test results
         if: always()
         run: |
-          if [ -f target/surefire-reports/testng-results.xml ]; then
-            FAILURES=$(grep -o 'failures="[0-9]*"' target/surefire-reports/testng-results.xml | grep -o '[0-9]*')
-            ERRORS=$(grep -o 'errors="[0-9]*"' target/surefire-reports/testng-results.xml | grep -o '[0-9]*')
-            if [ "$FAILURES" -gt 0 ] || [ "$ERRORS" -gt 0 ]; then
-              echo "Tests failed: $FAILURES failure(s), $ERRORS error(s)"
-              exit 1
-            else
-              echo "All tests passed!"
-            fi
-          fi
+          python3 - <<'EOF'
+          import glob, sys
+          from xml.etree import ElementTree as ET
+
+          files = glob.glob('target/surefire-reports/TEST-*.xml')
+          if not files:
+              print("No surefire report files found — skipping check")
+              sys.exit(0)
+
+          failures, errors = 0, 0
+          for f in files:
+              root = ET.parse(f).getroot()
+              failures += int(root.get('failures', 0))
+              errors   += int(root.get('errors',   0))
+
+          if failures > 0 or errors > 0:
+              print(f"Tests failed: {failures} failure(s), {errors} error(s)")
+              sys.exit(1)
+          else:
+              print("All tests passed!")
+          EOF
