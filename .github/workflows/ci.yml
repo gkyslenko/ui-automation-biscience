@@ -53,9 +53,9 @@ jobs:
         run: google-chrome --version
       - name: Create passwords.properties
         run: |
-          cat > src/test/resources/config/passwords.properties << 'EOF'
-          base.password=${{ secrets.BASE_PASSWORD }}
-          EOF
+          sed 's|\${base\.password}|${{ secrets.BASE_PASSWORD }}|g' \
+            src/test/resources/config/passwords.properties.dif \
+            > src/test/resources/config/passwords.properties
       - name: Run smoke tests
         run: |
           mvn test \
