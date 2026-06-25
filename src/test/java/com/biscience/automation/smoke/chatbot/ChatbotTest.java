@@ -32,6 +32,8 @@ public class ChatbotTest extends BaseTest {
 
         ChatBotComponent chatbot = homePage.sidebar.openChatbot();
         chatbot.clickInput().enterText(randomStr).clickSubmit();
+        assertTrue(chatbot.isUserMessagePresent(), "User message should be present in the chat history");
+        assertTrue(chatbot.isAssistantMessagePresent(), "Assistant message should be present in the chat history");
 
         monitor.assertClean();
     }

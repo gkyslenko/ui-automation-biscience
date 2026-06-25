@@ -33,11 +33,11 @@ public class ChatBotComponent extends BaseComponent {
     }
 
     private WebElement userMessage() {
-        return getChildElementByXpath(".//div[@data-unit='user-message']");
+        return getChildElementByXpath(".//chatbot-card[@data-unit='user-message']");
     }
 
-    private WebElement assistantMessage() {
-        return getChildElementByXpath(".//div[@data-unit='assistant-message']");
+    private WebElement messageThinking() {
+        return getChildElementByXpath(".//chatbot-card[@data-message-id='message-thinking']");
     }
 
     private List<WebElement> suggestions() {
@@ -87,7 +87,7 @@ public class ChatBotComponent extends BaseComponent {
     }
 
     public boolean isAssistantMessagePresent() {
-        return isElementVisible(assistantMessage());
+        return isElementVisible(messageThinking());
     }
 
     public ChatBotComponent clickInput() {
